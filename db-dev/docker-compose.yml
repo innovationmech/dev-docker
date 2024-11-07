@@ -1,0 +1,112 @@
+version: "3.8"
+
+services:
+  elasticsearch:
+    image: elasticsearch:8.15.3
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=true # Enable security settings
+      - ELASTIC_PASSWORD=password # Set elastic user password
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+  kibana:
+    image: kibana:8.15.3
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=password
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  mysql:
+    image: mysql:8.2
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root # Set root user password
+      - MYSQL_DATABASE=demo # Initial database name
+      - MYSQL_USER=my_user # Initial database user
+      - MYSQL_PASSWORD=my_user_password # Initial user password
+    ports:
+      - "3306:3306" # Map port 3306
+    volumes:
+      - mysql_data:/var/lib/mysql # Persist MySQL data
+
+  postgresql:
+    image: postgres:13.16
+    container_name: postgresql
+    environment:
+      - POSTGRES_USER=postgres_user # Set PostgreSQL username
+      - POSTGRES_PASSWORD=postgres_password # Set PostgreSQL user password
+      - POSTGRES_DB=demo_db # Initial database name
+    ports:
+      - "5432:5432" # Map port 5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data # Persist PostgreSQL data
+
+  zookeeper:
+    image: bitnami/zookeeper:3.8
+    container_name: zookeeper
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: bitnami/kafka:3.5
+    container_name: kafka
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/bitnami/kafka
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.3
+    container_name: clickhouse
+    environment:
+      - CLICKHOUSE_DB=default # Default database
+    ports:
+      - "8123:8123" # HTTP interface
+      - "9000:9000" # TCP interface
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+
+  redis:
+    image: redis:7.4
+    container_name: redis
+    command: ["redis-server", "--requirepass", "your_redis_password"] # Set password
+    ports:
+      - "6379:6379" # Map Redis default port
+    volumes:
+      - redis_data:/data # Persist Redis data
+
+volumes:
+  es_data:
+    driver: local
+  mysql_data:
+    driver: local
+  pg_data:
+    driver: local
+  kafka_data:
+    driver: local
+  clickhouse_data:
+    driver: local
+  redis_data:
+    driver: local

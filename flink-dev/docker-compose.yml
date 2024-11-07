@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  jobmanager:
+    image: flink:latest
+    container_name: flink_jobmanager
+    hostname: jobmanager
+    ports:
+      - "8081:8081" # Flink Web UI
+    environment:
+      - "FLINK_PROPERTIES=jobmanager.rpc.address: jobmanager"
+    command: jobmanager
+
+  taskmanager:
+    image: flink:latest
+    container_name: flink_taskmanager
+    hostname: taskmanager
+    environment:
+      - "FLINK_PROPERTIES=jobmanager.rpc.address: jobmanager"
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    deploy:
+      replicas: 2 # Start 2 TaskManagers, you can adjust as needed
+
+networks:
+  default:
+    driver: bridge

@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  spark-master:
+    image: bitnami/spark:latest
+    container_name: spark-master
+    hostname: spark-master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_MASTER_HOST=spark-master
+    ports:
+      - "8080:8080" # Spark Master Web UI
+      - "7077:7077" # Spark Master RPC port
+
+  spark-worker:
+    image: bitnami/spark:latest
+    container_name: spark-worker
+    hostname: spark-worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+    deploy:
+      replicas: 2 # Start 2 workers, you can adjust as needed
+    ports:
+      - "8081:8081" # Spark Worker Web UI
+
+networks:
+  default:
+    driver: bridge
