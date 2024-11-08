@@ -96,6 +96,18 @@ services:
       - "6379:6379" # Map Redis default port
     volumes:
       - redis_data:/data # Persist Redis data
+  
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo_user # Set MongoDB initial username
+      - MONGO_INITDB_ROOT_PASSWORD=mongo_password # Set MongoDB initial password
+      - MONGO_INITDB_DATABASE=demo_db # Initial database name
+    ports:
+      - "27017:27017" # Map MongoDB default port
+    volumes:
+      - mongo_data:/data/db # Persist MongoDB data
 
 volumes:
   es_data:
@@ -109,4 +121,6 @@ volumes:
   clickhouse_data:
     driver: local
   redis_data:
+    driver: local
+  mongo_data:
     driver: local
