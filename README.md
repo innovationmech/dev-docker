@@ -41,6 +41,11 @@ Located in `db-dev/docker-compose.yml`, this setup includes:
 - **clickhouse**: ClickHouse database.
 - **redis**: Redis database.
 
+### Observe Development Environment
+Located in `observe-dev/docker-compose.yml`, this setup includes:
+- **prometheus**: Prometheus monitoring system.
+- **grafana**: Grafana for visualizing Prometheus metrics.
+
 ## Usage
 
 1. Navigate to the desired subdirectory.
