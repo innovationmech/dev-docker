@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.3
+    container_name: clickhouse
+    environment:
+      - CLICKHOUSE_DB=default # Default database
+    ports:
+      - "8123:8123" # HTTP interface
+      - "9000:9000" # TCP interface
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse # Persist ClickHouse data
+
+
+volumes:
+  clickhouse_data:
+    driver: local

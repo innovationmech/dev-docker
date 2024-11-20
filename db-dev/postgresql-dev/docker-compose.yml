@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  postgresql:
+    image: postgres:13.16
+    container_name: postgresql
+    environment:
+      - POSTGRES_USER=postgres_user # Set PostgreSQL username
+      - POSTGRES_PASSWORD=postgres_password # Set PostgreSQL user password
+      - POSTGRES_DB=demo_db # Initial database name
+    ports:
+      - "5432:5432" # Map port 5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data # Persist PostgreSQL data
+
+
+volumes:
+  pg_data:
+    driver: local

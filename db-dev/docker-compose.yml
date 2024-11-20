@@ -52,31 +52,6 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data # Persist PostgreSQL data
 
-  zookeeper:
-    image: bitnami/zookeeper:3.8
-    container_name: zookeeper
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
-    ports:
-      - "2181:2181"
-
-  kafka:
-    image: bitnami/kafka:3.5
-    container_name: kafka
-    environment:
-      - KAFKA_BROKER_ID=1
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
-      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
-      - ALLOW_PLAINTEXT_LISTENER=yes
-    depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-    volumes:
-      - kafka_data:/bitnami/kafka
-
   clickhouse:
     image: clickhouse/clickhouse-server:23.3
     container_name: clickhouse
@@ -115,8 +90,6 @@ volumes:
   mysql_data:
     driver: local
   pg_data:
-    driver: local
-  kafka_data:
     driver: local
   clickhouse_data:
     driver: local

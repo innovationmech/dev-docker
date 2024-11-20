@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7.4
+    container_name: redis
+    command: ["redis-server", "--requirepass", "your_redis_password"] # Set password
+    ports:
+      - "6379:6379" # Map Redis default port
+    volumes:
+      - redis_data:/data # Persist Redis data
+
+
+volumes:
+  redis_data:
+    driver: local

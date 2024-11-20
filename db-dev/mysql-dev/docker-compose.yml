@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.2
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root # Set root user password
+      - MYSQL_DATABASE=demo # Initial database name
+      - MYSQL_USER=my_user # Initial database user
+      - MYSQL_PASSWORD=my_user_password # Initial user password
+    ports:
+      - "3306:3306" # Map port 3306
+    volumes:
+      - mysql_data:/var/lib/mysql # Persist MySQL data
+
+volumes:
+  mysql_data:
+    driver: local
