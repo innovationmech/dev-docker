@@ -1,0 +1,199 @@
+version: '3.8'
+
+services:
+  # Elasticsearch Master Nodes
+  es-master-1:
+    image: elasticsearch:7.10.1
+    container_name: es-master-1
+    environment:
+      - node.name=es-master-1
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es-master-2,es-master-3
+      - cluster.initial_master_nodes=es-master-1,es-master-2,es-master-3
+      - node.master=true
+      - node.data=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - es-master-1-data:/usr/share/elasticsearch/data
+    networks:
+      - elk-net
+
+  es-master-2:
+    image: elasticsearch:7.10.1
+    container_name: es-master-2
+    environment:
+      - node.name=es-master-2
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es-master-1,es-master-3
+      - cluster.initial_master_nodes=es-master-1,es-master-2,es-master-3
+      - node.master=true
+      - node.data=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - es-master-2-data:/usr/share/elasticsearch/data
+    networks:
+      - elk-net
+
+  es-master-3:
+    image: elasticsearch:7.10.1
+    container_name: es-master-3
+    environment:
+      - node.name=es-master-3
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es-master-1,es-master-2
+      - cluster.initial_master_nodes=es-master-1,es-master-2,es-master-3
+      - node.master=true
+      - node.data=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - es-master-3-data:/usr/share/elasticsearch/data
+    networks:
+      - elk-net
+
+  # Elasticsearch Data Nodes
+  es-data-1:
+    image: elasticsearch:7.10.1
+    container_name: es-data-1
+    environment:
+      - node.name=es-data-1
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es-master-1,es-master-2,es-master-3
+      - node.master=false
+      - node.data=true
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    volumes:
+      - es-data-1-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - elk-net
+    depends_on:
+      - es-master-1
+      - es-master-2
+      - es-master-3
+
+  es-data-2:
+    image: elasticsearch:7.10.1
+    container_name: es-data-2
+    environment:
+      - node.name=es-data-2
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es-master-1,es-master-2,es-master-3
+      - node.master=false
+      - node.data=true
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    volumes:
+      - es-data-2-data:/usr/share/elasticsearch/data
+    networks:
+      - elk-net
+    depends_on:
+      - es-master-1
+      - es-master-2
+      - es-master-3
+
+  es-data-3:
+    image: elasticsearch:7.10.1
+    container_name: es-data-3
+    environment:
+      - node.name=es-data-3
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es-master-1,es-master-2,es-master-3
+      - node.master=false
+      - node.data=true
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    volumes:
+      - es-data-3-data:/usr/share/elasticsearch/data
+    networks:
+      - elk-net
+    depends_on:
+      - es-master-1
+      - es-master-2
+      - es-master-3
+
+  # Logstash Nodes
+  logstash-1:
+    image: logstash:7.10.1
+    container_name: logstash-1
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    ports:
+      - "5000:5000"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elk-net
+    depends_on:
+      - es-data-1
+
+  logstash-2:
+    image: logstash:7.10.1
+    container_name: logstash-2
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    ports:
+      - "5001:5000"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elk-net
+    depends_on:
+      - es-data-1
+
+  # Kibana Nodes
+  kibana-1:
+    image: kibana:7.10.1
+    container_name: kibana-1
+    environment:
+      - ELASTICSEARCH_HOSTS=["http://es-data-1:9200"]
+    ports:
+      - "5601:5601"
+    networks:
+      - elk-net
+    depends_on:
+      - es-data-1
+
+  kibana-2:
+    image: kibana:7.10.1
+    container_name: kibana-2
+    environment:
+      - ELASTICSEARCH_HOSTS=["http://es-data-1:9200"]
+    ports:
+      - "5602:5601"
+    networks:
+      - elk-net
+    depends_on:
+      - es-data-1
+
+  # Nginx Load Balancer for Kibana
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    networks:
+      - elk-net
+    depends_on:
+      - kibana-1
+      - kibana-2
+
+networks:
+  elk-net:
+    driver: bridge
+
+volumes:
+  es-master-1-data:
+  es-master-2-data:
+  es-master-3-data:
+  es-data-1-data:
+  es-data-2-data:
+  es-data-3-data:

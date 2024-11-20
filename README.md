@@ -36,8 +36,6 @@ Located in `db-dev/docker-compose.yml`, this setup includes:
 - **kibana**: Kibana for Elasticsearch.
 - **mysql**: MySQL database.
 - **postgresql**: PostgreSQL database.
-- **zookeeper**: Zookeeper service.
-- **kafka**: Kafka service.
 - **clickhouse**: ClickHouse database.
 - **redis**: Redis database.
 
