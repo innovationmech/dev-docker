@@ -64,6 +64,16 @@ services:
       - 9202:9200
       - 9302:9300
 
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.10.1
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es01:9200
+    ports:
+      - 5601:5601
+    depends_on:
+      - es01
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
