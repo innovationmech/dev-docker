@@ -1,7 +1,6 @@
-version: "3.8"
 services:
   jobmanager:
-    image: flink:latest
+    image: flink:1.20.0-scala_2.12-java11
     container_name: flink_jobmanager
     hostname: jobmanager
     ports:
@@ -11,8 +10,7 @@ services:
     command: jobmanager
 
   taskmanager:
-    image: flink:latest
-    container_name: flink_taskmanager
+    image: flink:1.20.0-scala_2.12-java11
     hostname: taskmanager
     environment:
       - "FLINK_PROPERTIES=jobmanager.rpc.address: jobmanager"
