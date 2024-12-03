@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   mysql-metastore:
     image: mysql:8.2
