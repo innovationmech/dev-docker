@@ -1,0 +1,25 @@
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.3
+    container_name: clickhouse
+    environment:
+      - CLICKHOUSE_DB=default # Default database
+    ports:
+      - "8123:8123" # HTTP interface
+      - "9000:9000" # TCP interface
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse # Persist ClickHouse data
+
+  postgresql:
+    image: postgres:13.16
+    container_name: postgresql
+    environment:
+      - POSTGRES_USER=postgres_user # Set PostgreSQL username
+      - POSTGRES_PASSWORD=postgres_password # Set PostgreSQL user password
+      - POSTGRES_DB=demo_db # Initial database name
+    ports:
+      - "5432:5432" # Map port 5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data # Persist PostgreSQL data
+
+  
