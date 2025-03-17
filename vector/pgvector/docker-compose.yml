@@ -1,0 +1,17 @@
+services:
+  postgres-vector:
+    image: ankane/pgvector:latest
+    container_name: postgres-vector
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: vectordb
+    volumes:
+      - postgres-vector-data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+volumes:
+  postgres-vector-data:
